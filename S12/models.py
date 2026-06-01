@@ -129,32 +129,7 @@ def init_db():
     """Создание таблиц и заполнение начальными данными"""
     db.connect()
     db.create_tables([Specialty, Discipline, CurriculumPlan], safe=True)
-
-    if not Specialty.select().exists():
-        sp = Specialty.create(name='Информационные системы и программирование')
-        d1 = Discipline.create(name='Математика')
-        d2 = Discipline.create(name='МДК 01.01 Разработка программных модулей')
-
-        CurriculumPlan.create(
-            specialty=sp,
-            discipline=d1,
-            semester=1,
-            theory_hours=48,
-            practice_hours=32,
-            assessment_type='exam',
-            year=2024
-        )
-        CurriculumPlan.create(
-            specialty=sp,
-            discipline=d2,
-            semester=2,
-            theory_hours=30,
-            practice_hours=60,
-            assessment_type='graded_credit',
-            year=2024
-        )
-
-
+    
 if __name__ == '__main__':
     init_db()
     print("База данных curriculum_plan.db успешно инициализирована.")
