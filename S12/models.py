@@ -74,8 +74,7 @@ class CurriculumPlan(BaseModel):
 
     @classmethod
     def get_list(cls, specialty_id=None, discipline_id=None, semester=None,
-                 year=None, assessment_type=None, is_active=True,
-                 limit=100, offset=0):
+                 year=None, assessment_type=None, is_active=True,offset=0):
         """Получить список записей по фильтрам."""
         query = cls.select().where(cls.is_active == is_active)
 
@@ -129,7 +128,7 @@ def init_db():
     """Создание таблиц и заполнение начальными данными"""
     db.connect()
     db.create_tables([Specialty, Discipline, CurriculumPlan], safe=True)
-    
+
 if __name__ == '__main__':
     init_db()
     print("База данных curriculum_plan.db успешно инициализирована.")
