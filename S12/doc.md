@@ -1,114 +1,133 @@
-# Вариант №12
-# Сервис управления учебными планами (Curriculum Plan Service)
+# S12 — Curriculum Plan Service (Сервис учебного плана)
 
-## Сущность: CurriculumPlan (Учебный план)
-
-Главный документ: какие дисциплины, в каком семестре, сколько часов (теория/практика), форма отчетности (экзамен/зачет).
+Сервис управляет учебными планами: какие дисциплины изучаются в каком семестре, сколько часов теории и практики, форма отчётности. **Не хранит** сами дисциплины и специальности — они управляются Discipline Service и Specialty Service.
 
 ---
 
-### 1. Информация для создания сущности
+## Добавить запись учебного плана
 
-| Параметр | Обязательность | Тип | Ограничение | Значение по умолчанию |
-|----------|----------------|-----|-------------|-----------------------|
-| `discipline_name` | Да | str | длина ≤ 200 | — |
-| `specialty_id` | Да | int | внешний ключ | — |
-| `semester` | Да | int | 1-8 | — |
-| `theory_hours` | Да | int | ≥ 0 | — |
-| `practice_hours` | Да | int | ≥ 0 | — |
-| `total_hours` | Да | int | ≥ 0 | — |
-| `assessment_form` | Да | str | 'экзамен', 'зачет', 'курсовая' | — |
+Информация, требуемая для создания записи:
+
+| Параметр | Пояснение | Обязательность | Тип | Ограничение | Значение по умолчанию |
+|----------|-----------|----------------|-----|-------------|----------------------|
+| specialty_id | ID специальности | Обязательно | integer | внешний ключ → Specialty Service | — |
+| discipline_id | ID дисциплины | Обязательно | integer | внешний ключ → Discipline Service | — |
+| semester | Номер семестра | Обязательно | integer | от 1 до 12 | — |
+| theory_hours | Часов теории | Обязательно | integer | ≥ 0 | — |
+| practice_hours | Часов практики | Обязательно | integer | ≥ 0 | — |
+| assessment_type | Форма отчётности | Обязательно | string | 'exam', 'credit', 'graded_credit' | — |
+| year | Учебный год | Обязательно | integer | ≥ 2000 | — |
 
 **Уникальные комбинации параметров:**
-- `discipline_name` + `specialty_id` + `semester`
+- `(specialty_id, discipline_id, semester, year)` — одна дисциплина не может встречаться дважды в одном семестре одного учебного плана.
 
-### 2. Информация, возвращаемая при успешном создании
-
-| Параметр | Тип |
-|----------|-----|
-| `id` | int |
-| `discipline_name` | str |
-| `specialty_id` | int |
-| `semester` | int |
-| `theory_hours` | int |
-| `practice_hours` | int |
-| `total_hours` | int |
-| `assessment_form` | str |
-
----
-
-## Изменить сущность по ID
-
-### 3. Информация для изменения сущности
-
-| Параметр | Обязательность | Тип | Ограничение | Значение по умолчанию |
-|----------|----------------|-----|-------------|-----------------------|
-| `discipline_name` | Нет | str | длина ≤ 200 | текущее значение |
-| `theory_hours` | Нет | int | ≥ 0 | текущее значение |
-| `practice_hours` | Нет | int | ≥ 0 | текущее значение |
-| `total_hours` | Нет | int | ≥ 0 | текущее значение |
-| `assessment_form` | Нет | str | 'экзамен', 'зачет', 'курсовая' | текущее значение |
-
-### 4. Информация, возвращаемая при успешном изменении
+Информация, возвращаемая при успешном создании:
 
 | Параметр | Тип |
 |----------|-----|
-| `id` | int |
-| `discipline_name` | str |
-| `specialty_id` | int |
-| `semester` | int |
-| `theory_hours` | int |
-| `practice_hours` | int |
-| `total_hours` | int |
-| `assessment_form` | str |
+| id | integer |
+| specialty_id | integer |
+| discipline_id | integer |
+| semester | integer |
+| theory_hours | integer |
+| practice_hours | integer |
+| total_hours | integer |
+| assessment_type | string |
+| year | integer |
+| is_active | boolean |
+| created_at | string |
+| updated_at | string |
 
 ---
 
-## Удалить сущность по ID
+## Изменить запись учебного плана по ID
 
-Вернет `True` (удалено) или `False` (не найдено) в поле `deleted`.
+Информация, требуемая для изменения (все поля необязательны):
 
----
+| Параметр | Пояснение | Обязательность | Тип | Ограничение |
+|----------|-----------|----------------|-----|-------------|
+| theory_hours | Новое кол-во часов теории | Опционально | integer | ≥ 0 |
+| practice_hours | Новое кол-во часов практики | Опционально | integer | ≥ 0 |
+| assessment_type | Новая форма отчётности | Опционально | string | 'exam', 'credit', 'graded_credit' |
 
-## Получить сущность по ID
+> Поля `specialty_id`, `discipline_id`, `semester`, `year` изменить нельзя. При изменении `theory_hours` или `practice_hours` поле `total_hours` пересчитывается автоматически.
 
-### 5. Информация, возвращаемая при успешном поиске
+Информация, возвращаемая при успешном изменении:
 
 | Параметр | Тип |
 |----------|-----|
-| `id` | int |
-| `discipline_name` | str |
-| `specialty_id` | int |
-| `semester` | int |
-| `theory_hours` | int |
-| `practice_hours` | int |
-| `total_hours` | int |
-| `assessment_form` | str |
+| id | integer |
+| specialty_id | integer |
+| discipline_id | integer |
+| semester | integer |
+| theory_hours | integer |
+| practice_hours | integer |
+| total_hours | integer |
+| assessment_type | string |
+| year | integer |
+| is_active | boolean |
+| created_at | string |
+| updated_at | string |
 
 ---
 
-## Получить список сущностей по заданным параметрам
+## Удалить запись учебного плана по ID
 
-### 6. Параметры для получения списка
+Вернёт `true`, если запись была деактивирована (`is_active = false`), иначе `false`. Физически запись из БД не удаляется.
 
-| Параметр | Тип | Описание |
-|----------|-----|-----------|
-| `specialty_id` | int | Фильтр по ID специальности |
-| `semester` | int | Фильтр по семестру |
-| `assessment_form` | str | Фильтр по форме отчетности |
-| `limit` | int | Максимум записей (по умолчанию 100) |
+---
 
-### 7. Возвращаемый список сущностей
+## Получить запись учебного плана по ID
+
+| Параметр | Пояснение | Тип |
+|----------|-----------|-----|
+| id | Идентификатор | integer |
+| specialty_id | ID специальности | integer |
+| discipline_id | ID дисциплины | integer |
+| semester | Номер семестра | integer |
+| theory_hours | Часов теории | integer |
+| practice_hours | Часов практики | integer |
+| total_hours | Всего часов | integer |
+| assessment_type | Форма отчётности | string |
+| year | Учебный год | integer |
+| is_active | Активна ли запись | boolean |
+| created_at | Дата создания | string |
+| updated_at | Дата последнего изменения | string |
+
+---
+
+## Получить список записей учебного плана по заданным параметрам
+
+| Параметр | Пояснение | Тип | Ограничение |
+|----------|-----------|-----|-------------|
+| specialty_id | Фильтр по специальности | integer | |
+| discipline_id | Фильтр по дисциплине | integer | |
+| semester | Фильтр по семестру | integer | от 1 до 12 |
+| year | Фильтр по учебному году | integer | ≥ 2000 |
+| assessment_type | Фильтр по форме отчётности | string | 'exam', 'credit', 'graded_credit' |
+| is_active | Фильтр по активности | boolean | |
+| limit | Количество записей | integer | от 1 до 100 |
+| offset | Смещение | integer | ≥ 0 |
+
+Информация возвращается в виде списка записей, каждая содержит:
 
 | Параметр | Тип |
 |----------|-----|
-| `id` | int |
-| `discipline_name` | str |
-| `specialty_id` | int |
-| `semester` | int |
-| `theory_hours` | int |
-| `practice_hours` | int |
-| `total_hours` | int |
-| `assessment_form` | str |
+| id | integer |
+| specialty_id | integer |
+| discipline_id | integer |
+| semester | integer |
+| theory_hours | integer |
+| practice_hours | integer |
+| total_hours | integer |
+| assessment_type | string |
+| year | integer |
+| is_active | boolean |
+| created_at | string |
+| updated_at | string |
 
-![ER-диаграмма](./erd.png)
+---
+
+## ER-диаграмма
+
+![ER-диаграмма](erd.png)
